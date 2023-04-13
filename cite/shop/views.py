@@ -5,10 +5,15 @@ from math import ceil
 
 # Create your views here.
 def index(request):
-    products  = Product.objects.all()
-    n = len(products)
-    nnSlides = n//4 + ceil((n/4) + (n//4))
-    params = {'no_of_slides': nnSlides , 'range': range(1, nnSlides) , 'product': products}
+    allProds = []
+    catprods = Product.objects.values('category', 'id')
+    cats = {item['category'] for item in catprods}
+    for cat in cats:
+        prod = Product.objects.filter(category = cat)
+        n = len(prod)
+        nSlides = n//4 + ceil((n/4) - (n//4))
+        allProds.append(([prod , range(1 , nSlides) , nSlides]))
+        params = {'allProds': allProds}
     return render(request , 'shop/index.html', params)
 
 def about(request):
@@ -16,20 +21,25 @@ def about(request):
 
 
 def contact(request):
-    return HttpResponse('contact page')
+    return render(request , 'shop/contact.html')
 
 
 def tracker(request):
-    return HttpResponse('tracker  page')
+    return render(request , 'shop/tracker.html')
 
 def search(request):
-    return HttpResponse('search page')
+    return render(request , 'shop/search.html')
 
 
-def productview(request):
-    return HttpResponse('product view page')
+def productView(request, myid):
+    product = Product.objects.filter(id =  myid)
+    print(product)
+    #Fetch the product using the id
+    return render(request, "shop/prodView.html" , {'product': product[0]})
 
 
 
 def checkout(request):
-    return HttpResponse('checkout page')
+    return render(request , 'shop/checkout.html')
+
+
